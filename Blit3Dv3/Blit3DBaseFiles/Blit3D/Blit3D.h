@@ -1,4 +1,8 @@
 /* Blit3D cross-platform game graphics library, written by Darren Reid
+version 3.2 - Angelcode fonts are now tracked, so either delete them via the new DeleteFont() method
+	or just let Blit3D free them when it is destroyed. 
+	NEVER CALL delete ON AN ANGELCODE FONT! (just like sprites).
+	Also, Angelcode fonts now load textures from the same directory as the font data file.
 Version 3.1 - changed how RenderBuffers work, added a sprite to the class
 Version 3.0 - now builds all from sources, no pre-built libs for GLEW/GLFW,
 	which means I can now default the builds to /MT and not use CRT from dlls
@@ -151,6 +155,9 @@ private:
 
 	std::mutex spriteMutex;
 	std::unordered_set<Sprite *> spriteSet;
+
+	std::mutex fontMutex;
+	std::unordered_set<AngelcodeFont *> fontSet;
 	
 public:	
 
@@ -172,6 +179,7 @@ public:
 	
 	BFont *MakeBFont(std::string TextureFileName, std::string widths_file, float fontsize);
 	AngelcodeFont *MakeAngelcodeFontFromBinary32(std::string filename);
+	void DeleteFont(AngelcodeFont *font);
 	
 	void Reshape(GLSLProgram *shader);
 	void ReshapFBO(int FBOwidth, int FBOheight, GLSLProgram *shader);

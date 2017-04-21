@@ -152,7 +152,14 @@ Blit3D::Blit3D()
 
 Blit3D::~Blit3D()
 {
-	//free all sprite memory first
+	//free all font memory first
+	for (std::unordered_set<AngelcodeFont *>::iterator itr = fontSet.begin(); itr != fontSet.end(); itr++)
+	{
+		delete *itr;
+	}
+	fontSet.clear(); // clear the elements 
+
+	//free all sprite memory
 	for(std::unordered_set<Sprite *>::iterator itr = spriteSet.begin(); itr != spriteSet.end(); itr++)
 	{
 		delete *itr;
@@ -558,6 +565,24 @@ Sprite*Blit3D::MakeSprite(RenderBuffer *rb)
 	return sprite;
 }
 
+void Blit3D::DeleteSprite(Sprite *sprite)
+{
+	//use a lock gaurd to lock until function returns
+	std::lock_guard<std::mutex> lock(spriteMutex);
+
+	std::unordered_set<Sprite *>::iterator it = spriteSet.find(sprite);
+	if (it != spriteSet.end())
+	{
+		//delete the sprite and remove from set
+		delete *it;
+		spriteSet.erase(it);
+	}
+	else
+	{
+		oLog(Level::Warning) << "DeleteSprite() called on non-existant Sprite * " << sprite;
+	}
+}
+
 BFont *Blit3D::MakeBFont(std::string TextureFileName, std::string widths_file, float fontsize)
 {
 	return new BFont(TextureFileName, widths_file, fontsize, tManager, shader2d);
@@ -565,7 +590,33 @@ BFont *Blit3D::MakeBFont(std::string TextureFileName, std::string widths_file, f
 
 AngelcodeFont *Blit3D::MakeAngelcodeFontFromBinary32(std::string filename)
 {
-	return new AngelcodeFont(filename, tManager, shader2d);
+	//use a lock gaurd to lock until function returns
+	std::lock_guard<std::mutex> lock(spriteMutex);
+
+	//create new font
+	AngelcodeFont *afont = new AngelcodeFont(filename, tManager, shader2d);
+	
+	fontSet.insert(afont);
+	
+	return afont;
+}
+
+void Blit3D::DeleteFont(AngelcodeFont *font)
+{
+	//use a lock gaurd to lock until function returns
+	std::lock_guard<std::mutex> lock(fontMutex);
+
+	std::unordered_set<AngelcodeFont *>::iterator it = fontSet.find(font);
+	if (it != fontSet.end())
+	{
+		//delete the sprite and remove from set
+		delete *it;
+		fontSet.erase(it);
+	}
+	else
+	{
+		oLog(Level::Warning) << "DeleteFont() called on non-existant font * " << font;
+	}
 }
 
 RenderBuffer *Blit3D::MakeRenderBuffer(int width, int height, std::string name)
@@ -709,20 +760,3 @@ void Blit3D::ReshapFBO(int FBOwidth, int FBOheight, GLSLProgram *shader)
 	shader->setUniform("projectionMatrix", projectionMatrix);
 }
 
-void Blit3D::DeleteSprite(Sprite *sprite)
-{
-	//use a lock gaurd to lock until function returns
-	std::lock_guard<std::mutex> lock(spriteMutex);
-
-	std::unordered_set<Sprite *>::iterator it = spriteSet.find(sprite);
-	if(it != spriteSet.end()) 
-	{
-		//delete the sprite and remove from set
-		delete *it;
-		spriteSet.erase(it);
-	}
-	else
-	{
-		oLog(Level::Warning) << "DeleteSprite() called on non-existant Sprite * " << sprite;
-	}
-}

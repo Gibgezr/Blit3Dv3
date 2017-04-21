@@ -6,6 +6,15 @@
 
 extern logger oLog;
 
+//helper function to find the path to a file
+std::string DirectoryOfFilePath(const std::string& filename)
+{
+	size_t position = filename.find_last_of("\\/");
+	
+	if (position == std::string::npos) return "";
+	else return filename.substr(0, position) + "\\";
+}
+
 AngelcodeFont::AngelcodeFont(std::string fontfile, TextureManager *TexManager, GLSLProgram *shader)
 {
 	texManager = TexManager;
@@ -203,7 +212,10 @@ AngelcodeFont::AngelcodeFont(std::string fontfile, TextureManager *TexManager, G
 
 	delete[] buffer;
 
-	texId = texManager->LoadTexture(textureName);
+	//Make a path string, so we can load textures from w/e the font file was
+	std::string fontPath = DirectoryOfFilePath(fontfile);
+
+	texId = texManager->LoadTexture(fontPath + textureName);
 
 	verts = new B3D::TVertex[4 * Chars.size()]; //make an array of Textured Vertices
 

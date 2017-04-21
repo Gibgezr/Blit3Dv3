@@ -1,14 +1,14 @@
 /*
 	Simple example of loading/rotating/displaying sprites in Blit3D
 */
-#include "Blit3D.h"
-
-Blit3D *blit3D = NULL;
-
 //memory leak detection
 #define CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
+
+#include "Blit3D.h"
+
+Blit3D *blit3D = NULL;
 
 //GLOBAL DATA
 Sprite *backgroundSprite = NULL; //a pointer to a background sprite
@@ -26,7 +26,7 @@ void Init()
 
 void DeInit(void)
 {
-	//any sprites still allocated are freed automatcally by the Blit3D object when we destroy it
+	//any sprites/fonts still allocated are freed automatically by the Blit3D object when we destroy it
 }
 
 void Update(double seconds)

@@ -4,6 +4,7 @@
 	Angelcode bitmap font class.
 	TODO: text format loading? Support for distance fields. Support for packed & non-32bit fonts?
 
+	version 1.5 - now loads the texture file from the same directory as the font data file
 	version 1.4 - fixed character yoffset calculations for Blit3D coordinate system
 	version 1.3 - fixed incorrect verts array index if glyph code is stored more than once in the font file
 	version 1.2 - added kerning support
@@ -80,3 +81,5 @@ public:
 	AngelcodeFont(std::string fontfile, TextureManager *TexManager, GLSLProgram *shader);
 
 };
+
+std::string DirectoryOfFilePath(const std::string& filename);
