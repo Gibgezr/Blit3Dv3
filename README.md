@@ -4,5 +4,6 @@ An easy to use cross-platform C++ framework for making 2D (and 3D) games. Suppor
 
 Current version 3.1
 
-Blit3D is under MIT license. GLFW/GLM/GLEW/stb_image code all under their respective licenses:
+Blit3D is under the extremely permissive MIT license. 
+GLFW/GLM/GLEW/stb_image code all under their respective licenses:
 see copying.txt in appropriate directories (stb_image license is in the file stb_image.h).
