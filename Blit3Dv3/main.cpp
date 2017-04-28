@@ -3,6 +3,13 @@
 */
 //memory leak detection
 #define CRTDBG_MAP_ALLOC
+#ifdef _DEBUG
+	#ifndef DBG_NEW
+		#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+		#define new DBG_NEW
+	#endif
+#endif  // _DEBUG
+
 #include <stdlib.h>
 #include <crtdbg.h>
 
@@ -69,6 +76,10 @@ int main(int argc, char *argv[])
 {
 	//memory leak detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	//set X to the memory allocation number in order to force a break on the allocation:
+	//useful for debugging memory leaks, as long as your memory allocations are deterministic.
+	//_crtBreakAlloc = X;
 
 	blit3D = new Blit3D(Blit3DWindowModel::BORDERLESSFULLSCREEN_1080P, 640, 400);
 
