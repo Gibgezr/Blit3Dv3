@@ -214,8 +214,8 @@ AngelcodeFont::AngelcodeFont(std::string fontfile, TextureManager *TexManager, G
 
 	//Make a path string, so we can load textures from w/e the font file was
 	std::string fontPath = DirectoryOfFilePath(fontfile);
-
-	texId = texManager->LoadTexture(fontPath + textureName);
+	textureName = fontPath + textureName;
+	texId = texManager->LoadTexture(textureName);
 
 	verts = new B3D::TVertex[4 * Chars.size()]; //make an array of Textured Vertices
 
