@@ -27,7 +27,7 @@ Sprite::Sprite(GLfloat startX, GLfloat startY, GLfloat width, GLfloat height,
 	texId = texManager->LoadTexture(TextureFileName);
 	if(texId == 0)
 	{
-		oLog(Level::Severe) << "Free Image loading error while loading image file: " << TextureFileName << "for Sprite";
+		oLog(Level::Severe) << "Image loading error while loading image file: " << TextureFileName << "for Sprite";
 		assert(texId != 0);
 	}
 
@@ -56,11 +56,11 @@ Sprite::Sprite(GLfloat startX, GLfloat startY, GLfloat width, GLfloat height,
 
 	/*
 
-	0-------3
+	0-------2
 	|       |
 	|       |
 	|       |
-	1-------2
+	1-------3
 	*/
 
 	//front side, counterclockwise
@@ -71,11 +71,12 @@ Sprite::Sprite(GLfloat startX, GLfloat startY, GLfloat width, GLfloat height,
 	verts[1].x = -halfSizeX;				verts[1].y = -halfSizeY;		verts[1].z = 0.f;
 	verts[1].u = u1;	verts[1].v = v2;
 	//point 2
-	verts[2].x = halfSizeX;					verts[2].y = -halfSizeY;		verts[2].z = 0.f;
-	verts[2].u = u2;	verts[2].v = v2;
+	verts[2].x = halfSizeX;					verts[2].y = halfSizeY;			verts[2].z = 0.f;
+	verts[2].u = u2;	verts[2].v = v1;
 	//point 3
-	verts[3].x = halfSizeX;					verts[3].y = halfSizeY;			verts[3].z = 0.f;
-	verts[3].u = u2;	verts[3].v = v1;
+	verts[3].x = halfSizeX;					verts[3].y = -halfSizeY;		verts[3].z = 0.f;
+	verts[3].u = u2;	verts[3].v = v2;
+	
 
 	// upload data to VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(B3D::TVertex) * 4, verts, GL_STATIC_DRAW);
@@ -147,11 +148,11 @@ Sprite::Sprite(RenderBuffer * rb, TextureManager *TexManager, GLSLProgram *shade
 
 	/*
 
-	0-------3
+	0-------2
 	|       |
 	|       |
 	|       |
-	1-------2
+	1-------3
 	*/
 
 	//front side, counterclockwise
@@ -162,11 +163,11 @@ Sprite::Sprite(RenderBuffer * rb, TextureManager *TexManager, GLSLProgram *shade
 	verts[1].x = -halfSizeX;				verts[1].y = -halfSizeY;		verts[1].z = 0.f;
 	verts[1].u = u1;	verts[1].v = v2;
 	//point 2
-	verts[2].x = halfSizeX;					verts[2].y = -halfSizeY;		verts[2].z = 0.f;
-	verts[2].u = u2;	verts[2].v = v2;
+	verts[2].x = halfSizeX;					verts[2].y = halfSizeY;			verts[2].z = 0.f;
+	verts[2].u = u2;	verts[2].v = v1;
 	//point 3
-	verts[3].x = halfSizeX;					verts[3].y = halfSizeY;			verts[3].z = 0.f;
-	verts[3].u = u2;	verts[3].v = v1;
+	verts[3].x = halfSizeX;					verts[3].y = -halfSizeY;		verts[3].z = 0.f;
+	verts[3].u = u2;	verts[3].v = v2;
 
 	// upload data to VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(B3D::TVertex) * 4, verts, GL_STATIC_DRAW);
@@ -225,8 +226,8 @@ void Sprite::Blit(void)
 	prog->setUniform("in_Scale_X", scale_x);
 	prog->setUniform("in_Scale_Y", scale_y);
 
-	// draw a quad: 1 quad x 4points per quad = 4 verts, the third argument
-	glDrawArrays(GL_QUADS, 0, 4);
+	// draw a triangle strip
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	// bind with 0, so, switch back to normal pointer operation
 	glBindVertexArray(0);
