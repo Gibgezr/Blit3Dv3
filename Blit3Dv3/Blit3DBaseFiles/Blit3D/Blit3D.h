@@ -1,4 +1,5 @@
 /* Blit3D cross-platform game graphics library, written by Darren Reid
+version 3.31 - if passing a shader to SetMode, it now gets used() automatically in 3D mode.
 version 3.3 - changed from using deprecated Quads to triangle strips for sprites.
 version 3.21 - added directory path to the stored texture name, so they free properly
 version 3.2 - Angelcode fonts are now tracked, so either delete them via the new DeleteFont() method

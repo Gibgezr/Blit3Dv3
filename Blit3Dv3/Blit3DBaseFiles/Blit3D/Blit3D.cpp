@@ -681,6 +681,9 @@ void Blit3D::SetMode(Blit3DRenderMode newMode, GLSLProgram *shader)
 		glEnable(GL_DEPTH_TEST);// Enable Depth Testing for 3D!
 		//3D perspective projection
 		projectionMatrix = glm::mat4(1.f) * glm::perspective(glm::radians(45.0f), (GLfloat)(screenWidth) / (GLfloat)(screenHeight), nearplane, farplane);
+		
+		shader->use();
+
 		//send matrices to the shader
 		shader->setUniform("projectionMatrix", projectionMatrix);
 		//TODO: make a backup of view matrix and projection matrix.
@@ -695,6 +698,7 @@ void Blit3D::SetMode(Blit3DRenderMode newMode, GLSLProgram *shader)
 		projectionMatrix = glm::mat4(1.f) * glm::ortho(0.f, (float)screenWidth, 0.f, (float)screenHeight, 0.f, 1.f);
 
 		shader->use();
+
 		//send matrices to the shader
 		shader->setUniform("projectionMatrix", projectionMatrix);
 		//TODO: make a backup of view matrix and projection matrix.
