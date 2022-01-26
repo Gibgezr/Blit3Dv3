@@ -402,7 +402,6 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 		"uniform float in_Scale_X = 1.f; \n"
 		"uniform float in_Scale_Y = 1.f; \n"
 		"out vec2 v_texcoord; \n"
-		"out vec4 gl_Position; \n"
 		"void main(void)\n"
 		"{\n"
 			"gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position.x * in_Scale_X, in_Position.y * in_Scale_Y, in_Position.z, 1.0); \n"
