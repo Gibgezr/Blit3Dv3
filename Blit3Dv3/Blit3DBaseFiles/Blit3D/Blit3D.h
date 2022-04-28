@@ -1,4 +1,5 @@
 /* Blit3D cross-platform game graphics library, written by Darren Reid
+* changes later than 3.31 are documented via git repository
 version 3.31 - if passing a shader to SetMode, it now gets used() automatically in 3D mode.
 version 3.3 - changed from using deprecated Quads to triangle strips for sprites.
 version 3.21 - added directory path to the stored texture name, so they free properly
@@ -155,6 +156,7 @@ private:
 	void(*DoScrollwheel)(double, double);
 	void(*DoJoystick)(void);
 	void(*DoFileDrop)(int, const char**);
+	void(*DoResize)(int, int);
 
 	std::mutex spriteMutex;
 	std::unordered_set<Sprite *> spriteSet;
@@ -202,6 +204,7 @@ public:
 	void SetDoScrollwheel(void(*func)(double, double)); 
 	void SetDoJoystick(void(*func)(void));
 	void SetDoFileDrop(void(*func)(int, const char**));
+	void SetDoResize(void(*func)(int, int));
 
 	//joystick polling, fills out the state struct if it returns true, returns false if the joystick isn't plugged in.
 	bool PollJoystick(int joystickNumber, B3D::JoystickState &joystickState);

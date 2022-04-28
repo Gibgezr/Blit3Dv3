@@ -1,7 +1,9 @@
 Blit3Dv3.sdf
+x64\*
 Debug\*
 Release\*
 Blit3Dv3\Debug\*
 Blit3Dv3\Release\*
+Blit3Dv3\x64\*
 Blit3Dv3\*.log
 .vs\*
