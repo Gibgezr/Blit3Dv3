@@ -2,12 +2,58 @@
 
 logger oLog("Blit3D.log", false);
 
+void APIENTRY glDebugOutput(GLenum source,
+	GLenum type,
+	unsigned int id,
+	GLenum severity,
+	GLsizei length,
+	const char* message,
+	const void* userParam)
+{
+	// ignore non-significant error/warning codes
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	oLog(Level::Warning) << "--OPENGL WARNING--";
+	oLog(Level::Warning) << "Debug message (" << id << "): " << message;
+
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API:             oLog(Level::Warning) << "Source: API"; break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   oLog(Level::Warning) << "Source: Window System"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: oLog(Level::Warning) << "Source: Shader Compiler"; break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:     oLog(Level::Warning) << "Source: Third Party"; break;
+	case GL_DEBUG_SOURCE_APPLICATION:     oLog(Level::Warning) << "Source: Application"; break;
+	case GL_DEBUG_SOURCE_OTHER:           oLog(Level::Warning) << "Source: Other"; break;
+	} //std::cout << std::endl;
+
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:               oLog(Level::Warning) << "Type: Error"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: oLog(Level::Warning) << "Type: Deprecated Behaviour"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  oLog(Level::Warning) << "Type: Undefined Behaviour"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:         oLog(Level::Warning) << "Type: Portability"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         oLog(Level::Warning) << "Type: Performance"; break;
+	case GL_DEBUG_TYPE_MARKER:              oLog(Level::Warning) << "Type: Marker"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          oLog(Level::Warning) << "Type: Push Group"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:           oLog(Level::Warning) << "Type: Pop Group"; break;
+	case GL_DEBUG_TYPE_OTHER:               oLog(Level::Warning) << "Type: Other"; break;
+	} //std::cout << std::endl;
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:         oLog(Level::Severe) << "Severity: high"; break;
+	case GL_DEBUG_SEVERITY_MEDIUM:       oLog(Level::Warning) << "Severity: medium"; break;
+	case GL_DEBUG_SEVERITY_LOW:          oLog(Level::Warning) << "Severity: low"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION: oLog(Level::Info) << "Severity: notification"; break;
+	} //std::cout << std::endl;
+	//std::cout << std::endl;
+}
+
 void(*Blit3DDoFileDrop)(int, const char**);
 void(*Blit3DDoInput)(int, int, int, int);
 void(*Blit3DCursorPosition)(double, double);
 void(*Blit3DMouseButton)(int, int, int);
 void(*Blit3DScrollwheel)(double, double);
-void(*Blit3DResize)(int, int);
 
 namespace B3D
 {
@@ -61,22 +107,22 @@ void MultiThreadUpdate(void(*Update)(double))
 	}
 }
 
-void drop_callback(GLFWwindow* window, int count, const char** paths)
+static void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
 	if(Blit3DDoFileDrop) Blit3DDoFileDrop(count, paths);
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if(Blit3DDoInput) Blit3DDoInput(key, scancode, action, mods);
 }
 
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if(Blit3DCursorPosition) Blit3DCursorPosition(xpos, ypos);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	if(Blit3DMouseButton) Blit3DMouseButton(button, action, mods);
 }
@@ -84,12 +130,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if(Blit3DScrollwheel) Blit3DScrollwheel(xoffset, yoffset);
-}
-
-void window_size_callback(GLFWwindow* window, int width, int height)
-{
-	// width and height are screen-relative coordinates, so beware!
-	if (Blit3DResize) Blit3DResize(width, height);
 }
 
 Blit3D::Blit3D(Blit3DWindowModel windowMode, int width, int height)
@@ -112,8 +152,6 @@ Blit3D::Blit3D(Blit3DWindowModel windowMode, int width, int height)
 	Blit3DScrollwheel = NULL;
 	DoJoystick = NULL;
 	Blit3DDoFileDrop = NULL;
-	DoResize = NULL;
-	Blit3DResize = NULL;
 
 	winMode= windowMode;
 	screenWidth = (float)width;
@@ -146,8 +184,6 @@ Blit3D::Blit3D()
 	Blit3DScrollwheel = NULL;
 	DoJoystick = NULL;
 	Blit3DDoFileDrop = NULL;
-	DoResize = NULL;
-	Blit3DResize = NULL;
 
 	winMode = Blit3DWindowModel::BORDERLESSFULLSCREEN;
 	screenWidth = 1920.f;
@@ -242,12 +278,6 @@ void Blit3D::SetDoScrollwheel(void(*func)(double, double))
 	Blit3DScrollwheel = DoScrollwheel;
 }
 
-void Blit3D::SetDoResize(void(*func)(int, int))
-{
-	DoResize = func;
-	Blit3DResize = DoResize;
-}
-
 bool Blit3D:: PollJoystick(int joystickNumber, B3D::JoystickState &joystickState)
 {
 	if(!glfwJoystickPresent(joystickNumber - 1)) return false;
@@ -284,6 +314,9 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 		oLog(Level::Severe) << "Could not start GLFW3";
 		return 1;
 	}
+
+	//comment out if not worried about catching OpenGL errors
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 	// uncomment these lines if on Apple OS X
 	/*glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -379,11 +412,16 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetDropCallback(window, drop_callback);
-	glfwSetWindowSizeCallback(window, window_size_callback);
 
 	// start GLEW extension handler
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	//OpenGL error logging
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(glDebugOutput, nullptr);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
 	// get version info
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
@@ -410,15 +448,15 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 	glfwSwapInterval(1); //cap FPS
 
 	//load default 2D shader
-	std::string vert2d = "#version 330 \n"
+	std::string vert2d = "#version 460 \n"
 		"uniform mat4 projectionMatrix; \n"
 		"uniform mat4 viewMatrix; \n"
 		"uniform mat4 modelMatrix; \n"
-		"in vec3 in_Position; \n"
-		"in vec2 in_Texcoord; \n"
-		"uniform float in_Alpha = 1.f; \n"
-		"uniform float in_Scale_X = 1.f; \n"
-		"uniform float in_Scale_Y = 1.f; \n"
+		"layout(location = 0)in vec3 in_Position; \n"
+		"layout(location = 1)in vec2 in_Texcoord; \n"
+		"uniform float in_Alpha = 1.0; \n"
+		"uniform float in_Scale_X = 1.0; \n"
+		"uniform float in_Scale_Y = 1.0; \n"
 		"out vec2 v_texcoord; \n"
 		"void main(void)\n"
 		"{\n"
@@ -426,7 +464,7 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 			"v_texcoord = in_Texcoord; \n"
 		"}";
 
-	std::string frag2d = "#version 330 \n" 
+	std::string frag2d = "#version 460 \n" 
 		"uniform sampler2D mytexture; \n" 
 		"in vec2 v_texcoord; \n" 
 		"uniform float in_Alpha; \n" 
@@ -439,8 +477,8 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 
 	shader2d = sManager->UseShader("shader2d_built_in.vert", "shader2d_built_in.frag", vert2d, frag2d); //load/compile/link
 	//attributes
-	shader2d->bindAttribLocation(0, "in_Position");
-	shader2d->bindAttribLocation(1, "in_Texcoord");
+	//shader2d->bindAttribLocation(0, "in_Position");
+	//shader2d->bindAttribLocation(1, "in_Texcoord");
 
 	//2d orthographic projection
 	SetMode(Blit3DRenderMode::BLIT2D);
@@ -643,7 +681,7 @@ RenderBuffer *Blit3D::MakeRenderBuffer(int width, int height, std::string name)
 
 void Blit3D::SetMode(Blit3DRenderMode newMode)
 {
-	if(mode == newMode) return;
+	//if(mode == newMode) return;
 
 	mode = newMode;
 
@@ -688,7 +726,7 @@ void Blit3D::SetMode(Blit3DRenderMode newMode)
 
 void Blit3D::SetMode(Blit3DRenderMode newMode, GLSLProgram *shader)
 {
-	if(mode == newMode) return;
+	//if(mode == newMode) return;
 
 	mode = newMode;
 
