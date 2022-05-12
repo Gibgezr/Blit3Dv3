@@ -145,18 +145,18 @@ public:
 
 	//function pointers
 private:
-	void (*Init)(void);
-	void (*Update)(double);
-	void (*Draw)(void);
-	void (*DeInit)(void);
-	void (*DoInput)(int , int, int, int);
-	void (*Sync)(void);
-	void(*DoCursor)(double, double);
-	void(*DoMouseButton)(int, int, int);
-	void(*DoScrollwheel)(double, double);
-	void(*DoJoystick)(void);
-	void(*DoFileDrop)(int, const char**);
-	void(*DoResize)(int, int);
+	void (*Init)(void) = NULL;
+	void (*Update)(double) = NULL;
+	void (*Draw)(void) = NULL;
+	void (*DeInit)(void) = NULL;
+	void (*DoInput)(int , int, int, int) = NULL;
+	void (*Sync)(void) = NULL;
+	void(*DoCursor)(double, double) = NULL;
+	void(*DoMouseButton)(int, int, int) = NULL;
+	void(*DoScrollwheel)(double, double) = NULL;
+	void(*DoJoystick)(void) = NULL;
+	void(*DoFileDrop)(int, const char**) = NULL;
+	void(*DoResize)(int, int) = NULL;
 
 	std::mutex spriteMutex;
 	std::unordered_set<Sprite *> spriteSet;

@@ -72,6 +72,14 @@ void DoInput(int key, int scancode, int action, int mods)
 		blit3D->Quit(); //start the shutdown sequence
 }
 
+//called whenever the user resizes the window
+void DoResize(int width, int height)
+{
+	blit3D->trueScreenWidth = blit3D->screenWidth = static_cast<float>(width);
+	blit3D->trueScreenHeight = blit3D->screenHeight = static_cast<float>(height);
+	blit3D->Reshape(blit3D->shader2d);
+}
+
 int main(int argc, char *argv[])
 {
 	//memory leak detection
@@ -89,6 +97,7 @@ int main(int argc, char *argv[])
 	blit3D->SetUpdate(Update);
 	blit3D->SetDraw(Draw);
 	blit3D->SetDoInput(DoInput);
+	blit3D->SetDoResize(DoResize);
 
 	//Run() blocks until the window is closed
 	blit3D->Run(Blit3DThreadModel::SINGLETHREADED);

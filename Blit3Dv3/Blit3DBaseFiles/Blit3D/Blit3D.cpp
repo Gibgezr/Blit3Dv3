@@ -54,6 +54,7 @@ void(*Blit3DDoInput)(int, int, int, int);
 void(*Blit3DCursorPosition)(double, double);
 void(*Blit3DMouseButton)(int, int, int);
 void(*Blit3DScrollwheel)(double, double);
+void(*Blit3DResize)(int, int);
 
 namespace B3D
 {
@@ -132,6 +133,12 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	if(Blit3DScrollwheel) Blit3DScrollwheel(xoffset, yoffset);
 }
 
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+	// width and height are screen-relative coordinates, so beware!
+	if (Blit3DResize) Blit3DResize(width, height);
+}
+
 Blit3D::Blit3D(Blit3DWindowModel windowMode, int width, int height)
 {
 	sManager = NULL;
@@ -152,6 +159,8 @@ Blit3D::Blit3D(Blit3DWindowModel windowMode, int width, int height)
 	Blit3DScrollwheel = NULL;
 	DoJoystick = NULL;
 	Blit3DDoFileDrop = NULL;
+	Blit3DResize = NULL;
+	DoResize = NULL;
 
 	winMode= windowMode;
 	screenWidth = (float)width;
@@ -184,6 +193,7 @@ Blit3D::Blit3D()
 	Blit3DScrollwheel = NULL;
 	DoJoystick = NULL;
 	Blit3DDoFileDrop = NULL;
+	Blit3DResize = NULL;
 
 	winMode = Blit3DWindowModel::BORDERLESSFULLSCREEN;
 	screenWidth = 1920.f;
@@ -276,6 +286,12 @@ void Blit3D::SetDoScrollwheel(void(*func)(double, double))
 {
 	DoScrollwheel = func;
 	Blit3DScrollwheel = DoScrollwheel;
+}
+
+void Blit3D::SetDoResize(void(*func)(int, int))
+{
+	DoResize = func;
+	Blit3DResize = DoResize;
 }
 
 bool Blit3D:: PollJoystick(int joystickNumber, B3D::JoystickState &joystickState)
@@ -412,6 +428,7 @@ int Blit3D::Run(Blit3DThreadModel threadType)
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetDropCallback(window, drop_callback);
+	glfwSetWindowSizeCallback(window, window_size_callback);
 
 	// start GLEW extension handler
 	glewExperimental = GL_TRUE;
