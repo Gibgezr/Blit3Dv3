@@ -1,6 +1,7 @@
 #include "glslprogram.h"
 
 #include "glutils.h"
+#include <iostream>
 
 #include <fstream>
 using std::ifstream;
@@ -303,13 +304,13 @@ void GLSLProgram::printActiveUniforms() {
 
     name = (GLchar *) malloc( maxLen );
 
-    printf(" Location | Name\n");
-    printf("------------------------------------------------\n");
+    std::cout << " Location | Name\n";
+    std::cout << "------------------------------------------------\n";
     for( int i = 0; i < nUniforms; ++i ) 
 	{
         glGetActiveUniform( handle, i, maxLen, &written, &size, &type, name );
         location = glGetUniformLocation(handle, name);
-        printf(" %-8d | %s\n",location, name);
+        std::cout << location << " | " << name << "\n";
     }
 
     free(name);
@@ -326,13 +327,13 @@ void GLSLProgram::printActiveAttribs() {
 
     name = (GLchar *) malloc( maxLength );
 
-    printf(" Index | Name\n");
-    printf("------------------------------------------------\n");
+    std::cout << " Index | Name\n";
+   std::cout << "------------------------------------------------\n";
     for( int i = 0; i < nAttribs; i++ ) 
 	{
         glGetActiveAttrib( handle, i, maxLength, &written, &size, &type, name );
         location = glGetAttribLocation(handle, name);
-        printf(" %-5d | %s\n",location, name);
+        std::cout << location << " | " << name << "\n";
     }
 
     free(name);
